@@ -12,33 +12,33 @@ import vn.hoidanit.jobhunter.repository.UserRepository;
 public class UserService {
     private final UserRepository userRepository;
 
-    public UserService(UserRepository userRepository){
+    public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
-    public User handleCreateUser(User user){
+    public User handleCreateUser(User user) {
         return this.userRepository.save(user);
-    }   
+    }
 
-    public void handleDeleteUser(long id){
+    public void handleDeleteUser(long id) {
         this.userRepository.deleteById(id);
     }
 
-    public User fetchUserById(long id){
+    public User fetchUserById(long id) {
         Optional<User> user = this.userRepository.findById(id);
-        if (user.isPresent()){
+        if (user.isPresent()) {
             return this.userRepository.findById(id).get();
         }
         return null;
     }
 
-    public List<User> fetchAllUser(){
+    public List<User> fetchAllUser() {
         return this.userRepository.findAll();
     }
 
-    public User handleUpdateUser(User reqUser){
+    public User handleUpdateUser(User reqUser) {
         User user = this.fetchUserById(reqUser.getId());
-        if (user != null){
+        if (user != null) {
             user.setName(reqUser.getName());
             user.setEmail(reqUser.getEmail());
             user.setPassword(reqUser.getPassword());
@@ -46,5 +46,9 @@ public class UserService {
             return this.userRepository.save(user);
         }
         return null;
+    }
+
+    public User handleGetUserByUsername(String username) {
+        return this.userRepository.findByEmail(username);
     }
 }
