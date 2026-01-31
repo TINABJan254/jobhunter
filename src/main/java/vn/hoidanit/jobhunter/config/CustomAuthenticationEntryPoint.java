@@ -13,6 +13,7 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @Component
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
@@ -33,7 +34,17 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
 
         RestResponse<Object> res = new RestResponse<Object>();
         res.setStatusCode(HttpStatus.UNAUTHORIZED.value());
-        res.setError(authException.getCause().getMessage());
+
+        String errorMessage = Optional.ofNullable(authException.getCause())
+                .map(Throwable::getMessage)
+                .orElse(authException.getMessage());
+        /*
+         * authException.getCause() return nguyên nhân (cause) của ngoại lệ, hoặc null nếu ngoại lệ ko có nguyên nhân
+         * vậy nên nếu ngoại lệ không có nguyên nhân thì nó sẽ trả ra null và ta tiếp tục gọi null.getMessage => lỗi nullpointerExc
+         * Khi đó nếu cause != null => lấy message của case, ngược lại thì lấy message của authException
+         */
+
+        res.setError(errorMessage);
         res.setMessage("Token không hợp lệ (hết hạn, không đúng định dạng, hoặc không truyền JWT ở header)...");
 
         mapper.writeValue(response.getWriter(), res);
