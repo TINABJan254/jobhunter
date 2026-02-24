@@ -1,5 +1,6 @@
 package vn.hoidanit.jobhunter.controller;
 
+import org.springframework.web.bind.annotation.RequestMapping;
 import vn.hoidanit.jobhunter.util.SecurityUtil;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -17,6 +18,7 @@ import vn.hoidanit.jobhunter.domain.dto.LoginDTO;
 import vn.hoidanit.jobhunter.domain.dto.ResLoginDTO;
 
 @RestController
+@RequestMapping("/api/v1")
 public class AuthController {
 
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
