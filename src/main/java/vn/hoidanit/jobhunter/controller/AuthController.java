@@ -1,6 +1,11 @@
 package vn.hoidanit.jobhunter.controller;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.web.bind.annotation.RequestMapping;
+import vn.hoidanit.jobhunter.domain.User;
+import vn.hoidanit.jobhunter.service.UserService;
 import vn.hoidanit.jobhunter.util.SecurityUtil;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,10 +28,15 @@ public class AuthController {
 
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final SecurityUtil securityUtil;
+    private final UserService userService;
 
-    public AuthController(AuthenticationManagerBuilder authenticationManagerBuilder, SecurityUtil securityUtil) {
+    @Value("${hoidanit.jwt.refresh-token-validity-in-seconds}")
+    private long refreshTokenExpiration;
+
+    public AuthController(AuthenticationManagerBuilder authenticationManagerBuilder, SecurityUtil securityUtil, UserService userService) {
         this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.securityUtil = securityUtil;
+        this.userService = userService;
     }
 
     @PostMapping("/login")
@@ -47,12 +57,39 @@ public class AuthController {
          * 
          */
 
-        String accessToken = this.securityUtil.createToken(authentication);
+        String accessToken = this.securityUtil.createAccessToken(authentication);
         ResLoginDTO resLoginDTO = new ResLoginDTO();
+        User curUserDb = this.userService.handleGetUserByUsername(loginDTO.getUsername());
+        if (curUserDb != null) {
+            ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin(
+                curUserDb.getId(),
+                curUserDb.getEmail(),
+                curUserDb.getName()
+            );
+            resLoginDTO.setUser(userLogin);
+        }
+
         resLoginDTO.setAccessToken(accessToken);
         
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        return ResponseEntity.ok().body(resLoginDTO);
+        // create refresh token
+        String refresh_token = this.securityUtil.createRefreshToken(loginDTO.getUsername(), resLoginDTO);
+
+        // update user
+        this.userService.updateUserToken(refresh_token, loginDTO.getUsername());
+
+        // set cookies
+        ResponseCookie resCookies = ResponseCookie
+                .from("refresh_token", refresh_token)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(refreshTokenExpiration)
+                .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, resCookies.toString())
+                .body(resLoginDTO);
     }
 }
