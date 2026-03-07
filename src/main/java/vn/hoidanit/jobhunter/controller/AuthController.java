@@ -54,6 +54,8 @@ public class AuthController {
          * có bị lock, disable, expire hay không, rồi mới đến check password
          * 
          */
+        // set thông tin người dùng đăng nhập vào context (có thể sử dụng sau này)
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
         ResLoginDTO res = new ResLoginDTO();
         User curUserDb = this.userService.handleGetUserByUsername(loginDTO.getUsername());
@@ -68,8 +70,6 @@ public class AuthController {
 
         String accessToken = this.securityUtil.createAccessToken(authentication, res.getUser());
         res.setAccessToken(accessToken);
-        
-        SecurityContextHolder.getContext().setAuthentication(authentication);
 
         // create refresh token
         String refresh_token = this.securityUtil.createRefreshToken(loginDTO.getUsername(), res);
