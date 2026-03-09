@@ -2,7 +2,6 @@ package vn.hoidanit.jobhunter.domain;
 
 import java.time.Instant;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,7 +26,6 @@ public class Company {
 
     private String logo;
 
-//    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GMT+7")
     private Instant createdAt;
 
     private Instant updatedAt;
@@ -35,6 +33,10 @@ public class Company {
     private String createdBy;
 
     private String updatedBy;
+
+    @ManyToOne
+    @JoinColumn(name = "company_id")
+    Company company;
 
     @PrePersist
     public void handleBeforeCreate() {
