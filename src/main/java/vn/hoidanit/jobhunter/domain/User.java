@@ -37,8 +37,9 @@ public class User {
     private String createdBy;
     private String updatedBy;
 
-    @OneToMany(mappedBy = "company", fetch = FetchType.LAZY)
-    List<User> users;
+    @ManyToOne
+    @JoinColumn(name = "company_id")
+    Company company;
 
     @PrePersist
     public void handleBeforeCreate() {

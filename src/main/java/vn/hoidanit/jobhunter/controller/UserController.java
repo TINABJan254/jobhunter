@@ -10,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import vn.hoidanit.jobhunter.domain.User;
+import vn.hoidanit.jobhunter.domain.response.ResCreateUserDTO;
 import vn.hoidanit.jobhunter.domain.response.ResUpdateUserDTO;
 import vn.hoidanit.jobhunter.domain.response.ResUserDTO;
 import vn.hoidanit.jobhunter.domain.response.ResultPaginationDTO;
@@ -30,7 +31,7 @@ public class UserController {
     }
     
     @PostMapping("/users")
-    public ResponseEntity<User> createUser(@Valid @RequestBody User user) throws IdInvalidException{
+    public ResponseEntity<ResCreateUserDTO> createUser(@Valid @RequestBody User user) throws IdInvalidException{
         boolean isEmailExist = this.userService.isEmailExist(user.getEmail());
         if (isEmailExist) {
             throw new IdInvalidException("Email " + user.getEmail() + " existed");
@@ -39,7 +40,7 @@ public class UserController {
         String hashPassword = this.passwordEncoder.encode(user.getPassword());
         user.setPassword(hashPassword);
         User curUser = this.userService.handleCreateUser(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(curUser);
+        return ResponseEntity.status(HttpStatus.CREATED).body(this.userService.convertToResCreateUserDTO(curUser));
     }
 
     @GetMapping("/users/{id}")
