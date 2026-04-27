@@ -52,7 +52,7 @@ public class AuthController {
          * Authenticate của AbstractUserDetailsAuthenticationProvider sẽ được gọi, tại đây nó sẽ lấy từ cache nếu đã đăng nhập cho nhanh
          * nếu không nó sẽ gọi tới DaoAuthenticationProvider để truy vấn từ db, sau khi lấy được user thành công, nó sẽ check xem account
          * có bị lock, disable, expire hay không, rồi mới đến check password
-         * 
+         *
          */
         // set thông tin người dùng đăng nhập vào context (có thể sử dụng sau này)
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -63,12 +63,13 @@ public class AuthController {
             ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin(
                 curUserDb.getId(),
                 curUserDb.getEmail(),
-                curUserDb.getName()
+                curUserDb.getName(),
+                curUserDb.getRole()
             );
             res.setUser(userLogin);
         }
 
-        String accessToken = this.securityUtil.createAccessToken(authentication.getName(), res.getUser());
+        String accessToken = this.securityUtil.createAccessToken(authentication.getName(), res);
         res.setAccessToken(accessToken);
 
         // create refresh token
@@ -105,7 +106,7 @@ public class AuthController {
             userLogin.setId(currentUserDB.getId());
             userLogin.setEmail(currentUserDB.getEmail());
             userLogin.setName(currentUserDB.getName());
-
+            userLogin.setRole(currentUserDB.getRole());
             userGetAccount.setUser(userLogin);
         }
 
@@ -137,12 +138,13 @@ public class AuthController {
             ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin(
                     currentUserDB.getId(),
                     currentUserDB.getEmail(),
-                    currentUserDB.getName());
+                    currentUserDB.getName(),
+                    currentUserDB.getRole());
             res.setUser(userLogin);
         }
 
         // create access token
-        String access_token = this.securityUtil.createAccessToken(email, res.getUser());
+        String access_token = this.securityUtil.createAccessToken(email, res);
         res.setAccessToken(access_token);
 
         // create refresh token

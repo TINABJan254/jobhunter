@@ -41,15 +41,16 @@ public class RoleController {
     }
 
     @PutMapping("/roles")
+    @ApiMessage("update a role")
     public ResponseEntity<Role> update(@RequestBody Role r) throws IdInvalidException {
         if (this.roleService.fetchById(r.getId()) == null) {
             throw new IdInvalidException("Role với id = " + r.getId() + " không tồn tại");
         }
 
         // check name
-        if (this.roleService.existByName(r.getName())) {
-            throw new IdInvalidException("Role với name = " + r.getName() + " đã tồn tại");
-        }
+//        if (this.roleService.existByName(r.getName())) {
+//            throw new IdInvalidException("Role với name = " + r.getName() + " đã tồn tại");
+//        }
 
         return ResponseEntity.status(HttpStatus.CREATED).body(this.roleService.update(r));
     }
