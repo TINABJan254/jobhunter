@@ -56,7 +56,7 @@ public class SubscriberService {
             subsDb.setSkills(dbSkills);
         }
 
-        return this.subscriberRepository.save(subscriber);
+        return this.subscriberRepository.save(subsDb);
     }
 
 }
